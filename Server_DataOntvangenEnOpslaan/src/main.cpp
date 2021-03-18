@@ -3,6 +3,7 @@
 #include <RH_RF95.h>
 #include <RHReliableDatagram.h>
 
+#define CLIENT_ADDRESS 2
 #define SERVER_ADDRESS 1
 
 // Singleton instance of the radio driver
@@ -24,10 +25,10 @@ digitalWrite(8, HIGH);
     Serial.println("init failed");
     driver.setFrequency(868);
 
+  Serial.println("Setup complete");
+
 }
 
-
-#warning "compiling lora ptp server code"
 void loop()
 {
   if (manager.available())
@@ -38,16 +39,11 @@ void loop()
     uint8_t from;
     if (manager.recvfromAck(buf, &len, &from))
     {
-      Serial.print("got data from: 0x ");
+      uint16_t buf_merged= (buf[1] << 8) | buf[0];
+      Serial.print("got data from: ");
       Serial.print(from, HEX);
       Serial.print(": ");
-      Serial.println((char*)buf);     
-           
-      // Send a reply
-      uint8_t data[] = "Succes";
-      if (!manager.sendtoWait(data, sizeof(data), from))
-        Serial.println("sendtoWait failed");
-      Serial.println("Sent a reply");
+      Serial.println(buf_merged);     
     } 
   }
 }
