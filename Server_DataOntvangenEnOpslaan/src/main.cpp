@@ -40,9 +40,9 @@ void loop()
     if (manager.recvfromAck(buf, &len, &from))
     {
       uint16_t buf_merged= (buf[1] << 8) | buf[0];
-      Serial.print("got data from: ");
+      //Serial.print("got data from: ");
       Serial.print(from, HEX);
-      Serial.print(": ");
+      Serial.print(":");
       Serial.println(buf_merged);     
     } 
   }
