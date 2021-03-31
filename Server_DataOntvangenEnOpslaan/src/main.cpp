@@ -25,7 +25,7 @@ digitalWrite(8, HIGH);
     Serial.println("init failed");
     driver.setFrequency(868);
 
-  Serial.println("Setup complete");
+  //Serial.println("Setup complete");
 
 }
 
