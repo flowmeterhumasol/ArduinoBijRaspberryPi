@@ -7,18 +7,16 @@
 #define SERVER_ADDRESS 1
 
 //Verzend buffer
-const int lengthSendingBuffer= 20;
+const int lengthSendingBuffer= 4;
+char emptyChar[lengthSendingBuffer]= " "; 
 char sendingBuf[lengthSendingBuffer][20];  
 int indexBuf=0;
 int indexBuf_empty=0; 
+unsigned long time;
 
 //Test voor in de buffer 
-uint16_t liters1= 25;
-uint8_t from1= 2; 
-uint16_t liters2= 33;
-uint8_t from2= 3; 
-uint16_t liters3= 5;
-uint8_t from3= 2; 
+uint16_t liters1= 0;
+uint8_t from1= 2;  
 
 //Serial communication ISR
 String responseRPI = "";      // a String to hold incoming data
@@ -62,37 +60,33 @@ digitalWrite(8, HIGH);
   responseRPI.reserve(200);
   //Serial.println("Setup complete");
 
+  sprintf(sendingBuf[indexBuf_empty],"%u:%u",from1,liters1);  //format two ints into character array
+  indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer); 
+  time= millis(); 
 }
 
 void loop()
 {
-  //Moet weg na testen 
-  ///////////////////////////////:
-  sprintf(sendingBuf[indexBuf_empty],"%u:%u",from1,liters1);  //format two ints into character array
-  indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer-1); 
-  sprintf(sendingBuf[indexBuf_empty],"%u:%u",from2,liters2);  //format two ints into character array
-  indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer-1); 
-  sprintf(sendingBuf[indexBuf_empty],"%u:%u",from3,liters3);  //format two ints into character array 
-  indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer-1); 
-////////////////////////////////
-
-  // print the string when a newline arrives:
+    // print the string when a newline arrives:
   if (stringComplete) {
     if (responseRPI.compareTo("ACK")){
-  indexBuf = (indexBuf+1) % (lengthSendingBuffer-1); 
+      for(int i=0;i<lengthSendingBuffer;i++){
+      sendingBuf[indexBuf][i]=' ';
+      }
+      indexBuf = (indexBuf+1) % (lengthSendingBuffer); 
     }
     // clear the string:
     responseRPI = "";
     stringComplete = false;
   }
 
-  if (indexBuf < indexBuf_empty ||indexBuf_empty==0){
+  if ((indexBuf < indexBuf_empty ||(indexBuf==lengthSendingBuffer-1 && indexBuf != indexBuf_empty )) && millis()-time>300){
     Serial.print(indexBuf);
     Serial.print( "." );
-    Serial.println(sendingBuf[indexBuf]);
+    Serial.println(sendingBuf[indexBuf]); 
+    time= millis(); 
     }
     
-  delay(3500);
 
   if (manager.available())
   {
@@ -103,12 +97,8 @@ void loop()
     if (manager.recvfromAck(buf_data, &len, &from))
     {
       uint16_t buf_merged= (buf_data[1] << 8) | buf_data[0];
-      //Serial.print("got data from: ");
-      //Serial.print(from, HEX);
-      //Serial.print(":");
-      //Serial.println(buf_merged);
       sprintf(sendingBuf[indexBuf_empty],"%u:%u",from,buf_merged);  //format two ints into character array
-      indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer-1); 
+      indexBuf_empty = (indexBuf_empty+1) % (lengthSendingBuffer);
     } 
   }
 }
