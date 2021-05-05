@@ -7,7 +7,7 @@
 #define SERVER_ADDRESS 1
 
 //Verzend buffer
-const int lengthSendingBuffer= 4;
+const int lengthSendingBuffer= 30;
 char emptyChar[lengthSendingBuffer]= " "; 
 char sendingBuf[lengthSendingBuffer][20];  
 int indexBuf=0;
@@ -80,12 +80,14 @@ void loop()
     stringComplete = false;
   }
 
-  if ((indexBuf < indexBuf_empty ||(indexBuf==lengthSendingBuffer-1 && indexBuf != indexBuf_empty )) && millis()-time>300){
+  if ((indexBuf < indexBuf_empty ||(indexBuf==lengthSendingBuffer-1 && indexBuf != indexBuf_empty )) && millis()-time>1000){
     Serial.print(indexBuf);
     Serial.print( "." );
     Serial.println(sendingBuf[indexBuf]); 
     time= millis(); 
     }
+
+    
     
 
   if (manager.available())
